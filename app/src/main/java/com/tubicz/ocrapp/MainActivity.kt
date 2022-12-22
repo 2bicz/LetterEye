@@ -4,9 +4,9 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
@@ -15,17 +15,19 @@ import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    private var cameraPreview: PreviewView? = null
+    private var viewCameraPreview: PreviewView? = null
     private var btShowTutorial: ImageButton? = null
     private var btChoosePicture: ImageButton? = null
     private var btTakePicture: ImageButton? = null
+
+    private var imageCapture: ImageCapture? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         requestPermissionsIfNotGranted()
         initializeViews()
-        setClickListeners()
+        setOnClickListeners()
         startCamera()
     }
 
@@ -48,42 +50,73 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun initializeViews() {
-        cameraPreview = findViewById(R.id.camera_preview)
+        viewCameraPreview = findViewById(R.id.camera_preview)
         btShowTutorial = findViewById(R.id.bt_show_tutorial)
         btChoosePicture = findViewById(R.id.bt_choose_picture)
         btTakePicture = findViewById(R.id.bt_take_picture)
     }
 
-    private fun setClickListeners() {
+    private fun setOnClickListeners() {
         btShowTutorial?.setOnClickListener(this)
         btChoosePicture?.setOnClickListener(this)
         btTakePicture?.setOnClickListener(this)
     }
 
     private fun startCamera() {
-        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider.getInstance(this)
+        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = ProcessCameraProvider
+            .getInstance(this)
+
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider = cameraProviderFuture.get()
-            bindPreview(cameraProvider)
+            val cameraSelector = buildCameraSelector()
+            val cameraPreview = buildPreview()
+            this.imageCapture = buildImageCapture()
+            cameraProvider!!.bindToLifecycle(this as LifecycleOwner, cameraSelector, cameraPreview, imageCapture)
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun bindPreview(cameraProvider: ProcessCameraProvider?) {
+    private fun buildCameraSelector(): CameraSelector {
+        return CameraSelector.Builder()
+            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+            .build()
+    }
+
+    private fun buildPreview(): Preview {
         val preview: Preview = Preview.Builder()
             .build()
 
-        val cameraSelector: CameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+        preview.setSurfaceProvider(viewCameraPreview?.surfaceProvider)
+        return preview
+    }
+
+    private fun buildImageCapture(): ImageCapture {
+        return ImageCapture.Builder()
             .build()
-
-        preview.setSurfaceProvider(cameraPreview?.surfaceProvider)
-
-        cameraProvider!!.bindToLifecycle(this as LifecycleOwner, cameraSelector, preview)
     }
 
     override fun onClick(v: View?) {
         when(v?.id) {
+            R.id.bt_take_picture -> takePicture()
         }
+    }
+
+    private fun takePicture() {
+        imageCapture!!.takePicture(
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    super.onCaptureSuccess(image)
+                    Toast.makeText(applicationContext, R.string.toast_photo_taken, Toast.LENGTH_SHORT).show()
+
+                    // TODO: Przekonwertować ImageProxy do Bitmapy
+
+                }
+
+                override fun onError(exception: ImageCaptureException) {
+                    super.onError(exception)
+                }
+            }
+        )
     }
 
 }
