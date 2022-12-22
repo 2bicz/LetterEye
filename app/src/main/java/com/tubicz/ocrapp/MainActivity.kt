@@ -1,36 +1,63 @@
 package com.tubicz.ocrapp
 
-import android.media.Image
-import androidx.appcompat.app.AppCompatActivity
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
-import androidx.camera.core.CameraProvider
+import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    val cameraPreview: PreviewView = findViewById(R.id.camera_preview)
-    private val btShowTutorial: ImageButton = findViewById(R.id.bt_show_tutorial)
-    private val btChoosePicture: ImageButton = findViewById(R.id.bt_choose_picture)
-    private val btTakePicture: ImageButton = findViewById(R.id.bt_take_picture)
-
-    init {
-        btShowTutorial.setOnClickListener(this)
-        btChoosePicture.setOnClickListener(this)
-        btTakePicture.setOnClickListener(this)
-    }
+    private var cameraPreview: PreviewView? = null
+    private var btShowTutorial: ImageButton? = null
+    private var btChoosePicture: ImageButton? = null
+    private var btTakePicture: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        requestPermissionsIfNotGranted()
+        initializeViews()
+        setClickListeners()
         startCamera()
+    }
+
+    private fun requestPermissionsIfNotGranted() {
+        val requiredPermissions: Array<String> = arrayOf("android.permission.CAMERA")
+        if (!allPermissionGranted(requiredPermissions)) {
+            ActivityCompat.requestPermissions(this, requiredPermissions, 101)
+        }
+    }
+
+    private fun allPermissionGranted(requiredPermissions: Array<String>): Boolean {
+        for (permission in requiredPermissions) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    permission
+                ) != PackageManager.PERMISSION_GRANTED
+            ) return false
+        }
+        return true
+    }
+
+    private fun initializeViews() {
+        cameraPreview = findViewById(R.id.camera_preview)
+        btShowTutorial = findViewById(R.id.bt_show_tutorial)
+        btChoosePicture = findViewById(R.id.bt_choose_picture)
+        btTakePicture = findViewById(R.id.bt_take_picture)
+    }
+
+    private fun setClickListeners() {
+        btShowTutorial?.setOnClickListener(this)
+        btChoosePicture?.setOnClickListener(this)
+        btTakePicture?.setOnClickListener(this)
     }
 
     private fun startCamera() {
@@ -42,21 +69,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun bindPreview(cameraProvider: ProcessCameraProvider?) {
-        var preview: Preview = Preview.Builder()
+        val preview: Preview = Preview.Builder()
             .build()
 
-        var cameraSelector: CameraSelector = CameraSelector.Builder()
+        val cameraSelector: CameraSelector = CameraSelector.Builder()
             .requireLensFacing(CameraSelector.LENS_FACING_BACK)
             .build()
 
-        preview.setSurfaceProvider(cameraPreview.surfaceProvider)
+        preview.setSurfaceProvider(cameraPreview?.surfaceProvider)
 
         cameraProvider!!.bindToLifecycle(this as LifecycleOwner, cameraSelector, preview)
     }
 
     override fun onClick(v: View?) {
         when(v?.id) {
-
         }
     }
 
