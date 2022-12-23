@@ -3,12 +3,13 @@ package com.tubicz.ocrapp
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.edmodo.cropper.CropImageView
+import com.tubicz.ocrapp.networking.ApiConnect
+import com.tubicz.ocrapp.support_classes.ImageConverter
 import java.io.IOException
 
 
@@ -42,7 +43,6 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun initializeCropAreaBitmap() {
         val bitmap: Bitmap? = bitmapFromIntent()
-//        val scaledBitmap: Bitmap = Bitmap.createScaledBitmap(bitmap!!, 1000, 1200, true)
         imageCropperView?.setImageBitmap(bitmap)
     }
 
@@ -60,6 +60,33 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        TODO("Not yet implemented")
+        when (v!!.id) {
+            R.id.bt_ok -> readTextOnBitmapAndDisplayResults()
+        }
+    }
+
+    private fun readTextOnBitmapAndDisplayResults() {
+        val bitmap: Bitmap = cropBitmapToAreaOfInterest()
+        val bitmapByteArray: ByteArray = croppedBitmapToByteArray(bitmap)
+        val bitmapText: String = readBitmapText(bitmapByteArray)
+        moveToDisplayResultsActivity(bitmapText)
+    }
+
+    private fun cropBitmapToAreaOfInterest() = imageCropperView!!.croppedImage
+
+    private fun croppedBitmapToByteArray(bitmap: Bitmap): ByteArray {
+        val imageConverter = ImageConverter()
+        return imageConverter.bitmapToByteArray(bitmap)
+    }
+
+    private fun readBitmapText(bitmapByteArray: ByteArray): String {
+        val apiConnector: ApiConnect = ApiConnect()
+        return apiConnector.readTextFromBitmap()
+    }
+
+    private fun moveToDisplayResultsActivity(bitmapText: String) {
+        val intent: Intent = Intent(this, DisplayResultsActivity::class.java)
+        intent.putExtra("bitmapText", bitmapText)
+        startActivity(intent)
     }
 }

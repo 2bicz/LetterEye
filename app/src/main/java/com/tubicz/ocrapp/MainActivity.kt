@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        when(v?.id) {
+        when(v!!.id) {
             R.id.bt_take_picture -> takePictureAndMoveToChooseAreaActivity()
         }
     }
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         try {
             val filenameWithExtension = "$filename.webp"
             val outputStream: FileOutputStream = this.openFileOutput(filenameWithExtension, Context.MODE_PRIVATE)
-            // TODO: Podnieść jakość do 100 i skrócić czas kompresji
+            // TODO: Zrobić to na osobnym wątku
             bitmapToWrite.compress(Bitmap.CompressFormat.WEBP, 75, outputStream)
             outputStream.close()
         } catch (e: IOException) {
