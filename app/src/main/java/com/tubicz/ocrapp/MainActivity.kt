@@ -1,6 +1,10 @@
 package com.tubicz.ocrapp
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
@@ -13,6 +17,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
+import com.tubicz.ocrapp.support_classes.ImageConverter
+import java.io.FileOutputStream
+import java.io.IOException
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var viewCameraPreview: PreviewView? = null
@@ -27,7 +34,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
         requestPermissionsIfNotGranted()
         initializeViews()
-        setOnClickListeners()
+        initializeOnClickListeners()
         startCamera()
     }
 
@@ -56,10 +63,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         btTakePicture = findViewById(R.id.bt_take_picture)
     }
 
-    private fun setOnClickListeners() {
-        btShowTutorial?.setOnClickListener(this)
-        btChoosePicture?.setOnClickListener(this)
-        btTakePicture?.setOnClickListener(this)
+    private fun initializeOnClickListeners() {
+        btShowTutorial!!.setOnClickListener(this)
+        btChoosePicture!!.setOnClickListener(this)
+        btTakePicture!!.setOnClickListener(this)
     }
 
     private fun startCamera() {
@@ -96,27 +103,62 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when(v?.id) {
-            R.id.bt_take_picture -> takePicture()
+            R.id.bt_take_picture -> takePictureAndMoveToChooseAreaActivity()
         }
     }
 
-    private fun takePicture() {
-        imageCapture!!.takePicture(
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageCapturedCallback() {
-                override fun onCaptureSuccess(image: ImageProxy) {
-                    super.onCaptureSuccess(image)
-                    Toast.makeText(applicationContext, R.string.toast_photo_taken, Toast.LENGTH_SHORT).show()
+    private fun takePictureAndMoveToChooseAreaActivity() {
+        val bitmap: Bitmap? = bitmapFromPreview()
+        Toast.makeText(applicationContext, R.string.toast_photo_taken, Toast.LENGTH_SHORT).show()
+        writeBitmapAsWebpFile(bitmap!!, "bitmap")
+        moveToChooseAreaActivity("bitmap.webp")
 
-                    // TODO: Przekonwertować ImageProxy do Bitmapy
 
-                }
-
-                override fun onError(exception: ImageCaptureException) {
-                    super.onError(exception)
-                }
-            }
-        )
+//        imageCapture!!.takePicture(
+//            ContextCompat.getMainExecutor(this),
+//            object : ImageCapture.OnImageCapturedCallback() {
+//                override fun onCaptureSuccess(image: ImageProxy) {
+//                    super.onCaptureSuccess(image)
+//                    Toast.makeText(applicationContext, R.string.toast_photo_taken, Toast.LENGTH_SHORT).show()
+//
+//                    val bitmap = convertImageProxyToBitmap(image)
+//
+//                    val filename = "bitmap"
+//                    writeBitmapAsWebpFile(bitmap, filename)
+//
+//                    moveToChooseAreaActivity("$filename.webp")
+//                }
+//
+//                override fun onError(exception: ImageCaptureException) {
+//                    super.onError(exception)
+//                    Toast.makeText(applicationContext, R.string.toast_photo_not_taken, Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//        )
     }
 
+    private fun bitmapFromPreview(): Bitmap? = viewCameraPreview?.bitmap
+
+    private fun convertImageProxyToBitmap(imageProxy: ImageProxy): Bitmap {
+        val imageConverter = ImageConverter()
+        return imageConverter.imageProxyToBitmap(imageProxy)!!
+    }
+
+    private fun writeBitmapAsWebpFile(bitmapToWrite: Bitmap, filename: String = "bitmap") {
+        try {
+            val filenameWithExtension = "$filename.webp"
+            val outputStream: FileOutputStream = this.openFileOutput(filenameWithExtension, Context.MODE_PRIVATE)
+            // TODO: Podnieść jakość do 100 i skrócić czas kompresji
+            bitmapToWrite.compress(Bitmap.CompressFormat.WEBP, 75, outputStream)
+            outputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun moveToChooseAreaActivity(filename: String) {
+        val intent = Intent(this, ChooseAreaActivity::class.java)
+        intent.putExtra("bitmap", filename)
+        startActivity(intent)
+    }
 }

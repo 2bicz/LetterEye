@@ -2,4 +2,5 @@
     <string name="app_name">OCRApp</string>
 
     <string name="toast_photo_taken">Zrobiono zdjęcie!</string>
+    <string name="toast_photo_not_taken">Nie udało się zrobić zdjęcia!</string>
 </resources>
