@@ -112,37 +112,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         Toast.makeText(applicationContext, R.string.toast_photo_taken, Toast.LENGTH_SHORT).show()
         writeBitmapAsWebpFile(bitmap!!, "bitmap")
         moveToChooseAreaActivity("bitmap.webp")
-
-
-//        imageCapture!!.takePicture(
-//            ContextCompat.getMainExecutor(this),
-//            object : ImageCapture.OnImageCapturedCallback() {
-//                override fun onCaptureSuccess(image: ImageProxy) {
-//                    super.onCaptureSuccess(image)
-//                    Toast.makeText(applicationContext, R.string.toast_photo_taken, Toast.LENGTH_SHORT).show()
-//
-//                    val bitmap = convertImageProxyToBitmap(image)
-//
-//                    val filename = "bitmap"
-//                    writeBitmapAsWebpFile(bitmap, filename)
-//
-//                    moveToChooseAreaActivity("$filename.webp")
-//                }
-//
-//                override fun onError(exception: ImageCaptureException) {
-//                    super.onError(exception)
-//                    Toast.makeText(applicationContext, R.string.toast_photo_not_taken, Toast.LENGTH_SHORT).show()
-//                }
-//            }
-//        )
     }
 
     private fun bitmapFromPreview(): Bitmap? = viewCameraPreview?.bitmap
-
-    private fun convertImageProxyToBitmap(imageProxy: ImageProxy): Bitmap {
-        val imageConverter = ImageConverter()
-        return imageConverter.imageProxyToBitmap(imageProxy)!!
-    }
 
     private fun writeBitmapAsWebpFile(bitmapToWrite: Bitmap, filename: String = "bitmap") {
         try {
