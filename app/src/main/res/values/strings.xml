@@ -3,4 +3,5 @@
 
     <string name="toast_photo_taken">Zrobiono zdjęcie!</string>
     <string name="toast_photo_not_taken">Nie udało się zrobić zdjęcia!</string>
+    <string name="try_again">Rozpoznanie tekstu nie powiodło się. Spróbuj ponownie!</string>
 </resources>

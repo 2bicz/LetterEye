@@ -1,5 +1,6 @@
 package com.tubicz.ocrapp
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -8,9 +9,8 @@ import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.edmodo.cropper.CropImageView
-import com.tubicz.ocrapp.networking.ApiConnect
-import com.tubicz.ocrapp.support_classes.ImageConverter
-import java.io.IOException
+import java.io.*
+import java.util.*
 
 
 class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
@@ -61,32 +61,48 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         when (v!!.id) {
-            R.id.bt_ok -> readTextOnBitmapAndDisplayResults()
+            R.id.bt_ok -> cropBitmapAndPassToDisplayResultsActivity()
         }
     }
 
-    private fun readTextOnBitmapAndDisplayResults() {
+    private fun cropBitmapAndPassToDisplayResultsActivity() {
         val bitmap: Bitmap = cropBitmapToAreaOfInterest()
-        val bitmapByteArray: ByteArray = croppedBitmapToByteArray(bitmap)
-        val bitmapText: String = readBitmapText(bitmapByteArray)
-        moveToDisplayResultsActivity(bitmapText)
+//        val bitmapFilename: String = putBitmapToFileAndGetFilename(bitmap)
+
+        val filename: String = "croppedBitmap"
+        writeBitmapAsPngFile(bitmap, filename)
+        moveToDisplayResultsActivity("$filename.png")
     }
 
     private fun cropBitmapToAreaOfInterest() = imageCropperView!!.croppedImage
 
-    private fun croppedBitmapToByteArray(bitmap: Bitmap): ByteArray {
-        val imageConverter = ImageConverter()
-        return imageConverter.bitmapToByteArray(bitmap)
+
+    private fun putBitmapToFileAndGetFilename(bitmap: Bitmap): String {
+        var file = applicationContext.getDir("Images", Context.MODE_PRIVATE)
+        val filename: String = "${UUID.randomUUID()}.png"
+        file = File(file, filename)
+        val stream: OutputStream = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream)
+        stream.flush()
+        stream.close()
+        return filename
     }
 
-    private fun readBitmapText(bitmapByteArray: ByteArray): String {
-        val apiConnector: ApiConnect = ApiConnect()
-        return apiConnector.readTextFromBitmap()
+    private fun writeBitmapAsPngFile(bitmapToWrite: Bitmap, filename: String) {
+        try {
+            val filenameWithExtension = "$filename.png"
+            val outputStream: FileOutputStream = this.openFileOutput(filenameWithExtension, Context.MODE_PRIVATE)
+            // TODO: Zrobić to na osobnym wątku
+            bitmapToWrite.compress(Bitmap.CompressFormat.PNG, 50, outputStream)
+            outputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 
-    private fun moveToDisplayResultsActivity(bitmapText: String) {
+    private fun moveToDisplayResultsActivity(bitmapFilename: String) {
         val intent: Intent = Intent(this, DisplayResultsActivity::class.java)
-        intent.putExtra("bitmapText", bitmapText)
+        intent.putExtra("bitmapFilename", bitmapFilename)
         startActivity(intent)
     }
 }

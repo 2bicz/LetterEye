@@ -1,6 +1,5 @@
 package com.tubicz.ocrapp
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -17,7 +16,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
-import com.tubicz.ocrapp.support_classes.ImageConverter
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -110,18 +108,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun takePictureAndMoveToChooseAreaActivity() {
         val bitmap: Bitmap? = bitmapFromPreview()
         Toast.makeText(applicationContext, R.string.toast_photo_taken, Toast.LENGTH_SHORT).show()
-        writeBitmapAsWebpFile(bitmap!!, "bitmap")
-        moveToChooseAreaActivity("bitmap.webp")
+        writeBitmapAsPngFile(bitmap!!, "bitmap")
+        moveToChooseAreaActivity("bitmap.png")
     }
 
     private fun bitmapFromPreview(): Bitmap? = viewCameraPreview?.bitmap
 
-    private fun writeBitmapAsWebpFile(bitmapToWrite: Bitmap, filename: String = "bitmap") {
+    private fun writeBitmapAsPngFile(bitmapToWrite: Bitmap, filename: String = "bitmap") {
         try {
-            val filenameWithExtension = "$filename.webp"
+            val filenameWithExtension = "$filename.png"
             val outputStream: FileOutputStream = this.openFileOutput(filenameWithExtension, Context.MODE_PRIVATE)
             // TODO: Zrobić to na osobnym wątku
-            bitmapToWrite.compress(Bitmap.CompressFormat.WEBP, 75, outputStream)
+            bitmapToWrite.compress(Bitmap.CompressFormat.PNG, 75, outputStream)
             outputStream.close()
         } catch (e: IOException) {
             e.printStackTrace()
