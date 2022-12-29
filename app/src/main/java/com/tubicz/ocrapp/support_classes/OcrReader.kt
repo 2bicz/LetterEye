@@ -1,5 +1,7 @@
 package com.tubicz.ocrapp.support_classes
 
+import android.os.Handler
+import android.os.Looper
 import com.tubicz.ocrapp.networking.ApiConnect
 import com.tubicz.ocrapp.networking.AzureReadResultData
 import java.io.File
@@ -7,9 +9,15 @@ import java.io.File
 class OcrReader {
     fun readTextFromBitmap(inputFile: File): String {
         val apiConnector = connectToOcrApi()
-        // TODO: Odczytać tekst i zwrócić stringa
+
         val keyToRecognizedText = apiConnector.sendReadRequestAndGetOperationId(inputFile)
-        val readData: AzureReadResultData = apiConnector.getReadResult(keyToRecognizedText)
+        Handler(Looper.getMainLooper()).postDelayed({}, 5000)
+        var readData: AzureReadResultData = apiConnector.getReadResult(keyToRecognizedText)
+
+        while (readData.status == "running") {
+            readData = apiConnector.getReadResult(keyToRecognizedText)
+        }
+
         return glueAllReadStringsTogether(readData)
     }
 

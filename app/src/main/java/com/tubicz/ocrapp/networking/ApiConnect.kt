@@ -1,5 +1,7 @@
 package com.tubicz.ocrapp.networking
 
+import android.os.Handler
+import android.os.Looper
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import com.google.gson.Gson
@@ -75,7 +77,6 @@ class ApiConnect {
             println("siusiak response: ${response.headers.get("apim-request-id")}")
         } catch (e: Exception) {
             e.printStackTrace()
-            println("siusiak jebło: ${e.toString()}")
         }
         return response
     }

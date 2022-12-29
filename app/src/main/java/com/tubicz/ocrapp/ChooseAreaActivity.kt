@@ -67,7 +67,6 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun cropBitmapAndPassToDisplayResultsActivity() {
         val bitmap: Bitmap = cropBitmapToAreaOfInterest()
-//        val bitmapFilename: String = putBitmapToFileAndGetFilename(bitmap)
 
         val filename: String = "croppedBitmap"
         writeBitmapAsPngFile(bitmap, filename)
@@ -76,24 +75,12 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun cropBitmapToAreaOfInterest() = imageCropperView!!.croppedImage
 
-
-    private fun putBitmapToFileAndGetFilename(bitmap: Bitmap): String {
-        var file = applicationContext.getDir("Images", Context.MODE_PRIVATE)
-        val filename: String = "${UUID.randomUUID()}.png"
-        file = File(file, filename)
-        val stream: OutputStream = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream)
-        stream.flush()
-        stream.close()
-        return filename
-    }
-
     private fun writeBitmapAsPngFile(bitmapToWrite: Bitmap, filename: String) {
         try {
             val filenameWithExtension = "$filename.png"
             val outputStream: FileOutputStream = this.openFileOutput(filenameWithExtension, Context.MODE_PRIVATE)
             // TODO: Zrobić to na osobnym wątku
-            bitmapToWrite.compress(Bitmap.CompressFormat.PNG, 50, outputStream)
+            bitmapToWrite.compress(Bitmap.CompressFormat.PNG, 75, outputStream)
             outputStream.close()
         } catch (e: IOException) {
             e.printStackTrace()
