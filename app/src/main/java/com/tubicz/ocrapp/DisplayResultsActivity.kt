@@ -1,5 +1,6 @@
 package com.tubicz.ocrapp
 
+import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import com.tubicz.ocrapp.support_classes.OcrReader
 import java.io.File
 import java.io.IOException
@@ -23,6 +25,7 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_display_results)
 
         initializeViews()
+        setOnClickListeners()
 
         val file: File = fileFromIntent()
         doBitmapOcrOnNewThreadAndDisplayRecognizedText(file)
@@ -34,6 +37,13 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         btReadLoud = findViewById(R.id.bt_read_loud)
         btSend = findViewById(R.id.bt_send)
         btReturnHome = findViewById(R.id.bt_return_home)
+    }
+
+    private fun setOnClickListeners() {
+        btCopyText!!.setOnClickListener(this)
+        btReadLoud!!.setOnClickListener(this)
+        btSend!!.setOnClickListener(this)
+        btReturnHome!!.setOnClickListener(this)
     }
 
     private fun fileFromIntent(): File {
@@ -64,7 +74,11 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun copyTextViewToClipboard() {
-        val clipboardManager: ClipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val textToCopy: String = txtResult!!.text.toString()
 
+        val clipboardManager: ClipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText("ocr_text", textToCopy)
+        clipboardManager.setPrimaryClip(clip)
+        Toast.makeText(applicationContext, R.string.copied, Toast.LENGTH_SHORT).show()
     }
 }
