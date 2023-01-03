@@ -23,7 +23,6 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var viewCameraPreview: PreviewView? = null
-    private var btShowTutorial: ImageButton? = null
     private var btChoosePicture: ImageButton? = null
     private var btTakePicture: ImageButton? = null
 
@@ -58,13 +57,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun initializeViews() {
         viewCameraPreview = findViewById(R.id.camera_preview)
-        btShowTutorial = findViewById(R.id.bt_show_tutorial)
         btChoosePicture = findViewById(R.id.bt_choose_picture)
         btTakePicture = findViewById(R.id.bt_take_picture)
     }
 
     private fun initializeOnClickListeners() {
-        btShowTutorial!!.setOnClickListener(this)
         btChoosePicture!!.setOnClickListener(this)
         btTakePicture!!.setOnClickListener(this)
     }
@@ -121,7 +118,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         try {
             val filenameWithExtension = "$filename.png"
             val outputStream: FileOutputStream = this.openFileOutput(filenameWithExtension, Context.MODE_PRIVATE)
-            // TODO: Zrobić to na osobnym wątku
             bitmapToWrite.compress(Bitmap.CompressFormat.PNG, 75, outputStream)
             outputStream.close()
         } catch (e: IOException) {
@@ -130,7 +126,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun useImageFromGalleryAndMoveToChooseAreaActivity() {
-        val intent: Intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
         startActivityForResult(intent, 100)
     }
 

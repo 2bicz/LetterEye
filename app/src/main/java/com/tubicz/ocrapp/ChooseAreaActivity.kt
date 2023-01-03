@@ -3,7 +3,6 @@ package com.tubicz.ocrapp
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -12,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.edmodo.cropper.CropImageView
 import com.tubicz.ocrapp.support_classes.ImageConverter
 import java.io.*
-import java.util.*
 
 
 class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
@@ -91,7 +89,7 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun moveToDisplayResultsActivity(bitmapFilename: String) {
-        val intent: Intent = Intent(this, DisplayResultsActivity::class.java)
+        val intent = Intent(this, DisplayResultsActivity::class.java)
         intent.putExtra("bitmapFilename", bitmapFilename)
         startActivity(intent)
     }

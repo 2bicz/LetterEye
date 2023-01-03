@@ -82,10 +82,6 @@
                 android:src="@drawable/ic_baseline_send_24"
                 android:elevation="7dp"/>
 
-
-
-
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

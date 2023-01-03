@@ -1,20 +1,17 @@
 package com.tubicz.ocrapp.networking
 
-import android.os.Handler
-import android.os.Looper
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import com.google.gson.Gson
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.File
-import java.io.IOException
 
 
 class ApiConnect {
-    private val wildcard: String = "ocrandroidapp"
+    private val wildcard: String = "{YOUR-WILDCARD}"
     private val hostName: String = "cognitiveservices.azure.com/vision/v3.2"
-    private val apiKey: String = "e3f83d30f17d49a28ecb455d6776b0a1"
+    private val apiKey: String = "{YOUR-API-KEY}"
 
     init {
         givePermissions()
@@ -30,7 +27,7 @@ class ApiConnect {
         val request: Request = buildGetReadResultsRequest(urlString)
         val response: Response = executeCall(request)!!
 
-        val gson: Gson = Gson()
+        val gson = Gson()
         return gson.fromJson(response.body!!.string(), AzureReadResultData::class.java)
     }
 
@@ -51,7 +48,7 @@ class ApiConnect {
         val urlString: String = buildReadRequestUrlString()
         val request: Request = buildReadRequest(urlString, body)
         val response: Response? = executeCall(request)
-        return response!!.headers.get("apim-request-id").toString()
+        return response!!.headers["apim-request-id"].toString()
     }
 
     private fun buildReadRequestUrlString(): String {
@@ -74,7 +71,6 @@ class ApiConnect {
         var response: Response? = null
         try {
             response = client.newCall(request).execute()
-            println("siusiak response: ${response.headers.get("apim-request-id")}")
         } catch (e: Exception) {
             e.printStackTrace()
         }

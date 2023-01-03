@@ -11,21 +11,24 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import com.tubicz.ocrapp.support_classes.OcrReader
+import com.tubicz.ocrapp.support_classes.Speaker
 import java.io.File
 import java.io.IOException
 
 class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
-    var txtResult: TextView? = null
-    var btCopyText: ImageButton? = null
-    var btReadLoud: ImageButton? = null
-    var btSend: ImageButton? = null
-    var btReturnHome: ImageButton? = null
+    private var txtResult: TextView? = null
+    private var btCopyText: ImageButton? = null
+    private var btReadLoud: ImageButton? = null
+    private var btSend: ImageButton? = null
+    private var btReturnHome: ImageButton? = null
+    private var speaker: Speaker? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display_results)
 
         initializeViews()
+        initializeVariables()
         setOnClickListeners()
 
         val file: File = fileFromIntent()
@@ -38,6 +41,10 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         btReadLoud = findViewById(R.id.bt_read_loud)
         btSend = findViewById(R.id.bt_send)
         btReturnHome = findViewById(R.id.bt_return_home)
+    }
+
+    private fun initializeVariables() {
+        speaker = Speaker(this)
     }
 
     private fun setOnClickListeners() {
@@ -60,7 +67,7 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun doBitmapOcrOnNewThreadAndDisplayRecognizedText(file: File) {
         Thread(Runnable {
-            val ocrReader: OcrReader = OcrReader()
+            val ocrReader = OcrReader()
             val resultString: String = ocrReader.readTextFromBitmap(file)
             runOnUiThread {
                 txtResult!!.text = resultString
@@ -72,6 +79,7 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         when(v!!.id) {
             R.id.bt_copy_text -> copyTextViewToClipboard()
             R.id.bt_send -> sendMessageWithText()
+            R.id.bt_read_loud -> readLoudDetectedText()
             R.id.bt_return_home -> goToMainActivity()
         }
     }
@@ -96,9 +104,18 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         startActivity(chooser)
     }
 
+    private fun readLoudDetectedText() {
+        speaker!!.speakOut(txtResult!!.text.toString())
+    }
+
     private fun goToMainActivity() {
-        val intent: Intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(intent)
+    }
+
+    override fun onDestroy() {
+        speaker!!.speakerShutDown()
+        super.onDestroy()
     }
 }

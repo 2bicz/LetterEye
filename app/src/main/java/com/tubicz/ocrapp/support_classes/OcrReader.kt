@@ -25,7 +25,7 @@ class OcrReader {
 
     private fun glueAllReadStringsTogether(readData: AzureReadResultData): String {
         try {
-            var resultString: String = ""
+            var resultString = ""
             for(readResult: AzureReadResultData.AnalyzeResult.ReadResult in readData.analyzeResult.readResults) {
                 for(line: AzureReadResultData.AnalyzeResult.ReadResult.Line in readResult.lines) {
                     resultString += line.text + "\n"
