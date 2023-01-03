@@ -4,11 +4,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import com.edmodo.cropper.CropImageView
+import com.tubicz.ocrapp.support_classes.ImageConverter
 import java.io.*
 import java.util.*
 
@@ -42,21 +44,21 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun initializeCropAreaBitmap() {
-        val bitmap: Bitmap? = bitmapFromIntent()
-        imageCropperView?.setImageBitmap(bitmap)
+        val bitmap: Bitmap = bitmapFromIntent()
+        imageCropperView!!.setImageBitmap(bitmap)
     }
 
-    private fun bitmapFromIntent(): Bitmap? {
-        var bitmap: Bitmap? = null
-        val filename = intent.getStringExtra("bitmap")
-        try {
-            val fileInputStream = openFileInput(filename)
-            bitmap = BitmapFactory.decodeStream(fileInputStream)
-            fileInputStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
+    private fun bitmapFromIntent(): Bitmap {
+        val imageConverter = ImageConverter()
+        val bitmap: Bitmap = when(isUriInIntent()) {
+            true -> imageConverter.uriToBitmap(Uri.parse(intent.getStringExtra("bitmap_file_uri")), this)!!
+            false -> imageConverter.fileToBitmap(intent.getStringExtra("bitmap_filename")!!, this)!!
         }
         return bitmap
+    }
+
+    private fun isUriInIntent(): Boolean {
+        return intent.getStringExtra("bitmap_file_uri") != null
     }
 
     override fun onClick(v: View?) {
@@ -67,8 +69,7 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun cropBitmapAndPassToDisplayResultsActivity() {
         val bitmap: Bitmap = cropBitmapToAreaOfInterest()
-
-        val filename: String = "croppedBitmap"
+        val filename = "croppedBitmap"
         writeBitmapAsPngFile(bitmap, filename)
         moveToDisplayResultsActivity("$filename.png")
     }

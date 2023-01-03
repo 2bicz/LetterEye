@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageButton
 import android.widget.Toast
@@ -102,6 +104,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when(v!!.id) {
             R.id.bt_take_picture -> takePictureAndMoveToChooseAreaActivity()
+            R.id.bt_choose_picture -> useImageFromGalleryAndMoveToChooseAreaActivity()
         }
     }
 
@@ -126,9 +129,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private fun useImageFromGalleryAndMoveToChooseAreaActivity() {
+        val intent: Intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        startActivityForResult(intent, 100)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == RESULT_OK && data != null) {
+            if(requestCode == 100) {
+                val uri: Uri? = data.data
+                moveToChooseAreaActivity(uri!!)
+            }
+        }
+    }
+
     private fun moveToChooseAreaActivity(filename: String) {
         val intent = Intent(this, ChooseAreaActivity::class.java)
-        intent.putExtra("bitmap", filename)
+        intent.putExtra("bitmap_filename", filename)
+        startActivity(intent)
+    }
+
+    private fun moveToChooseAreaActivity(fileUri: Uri) {
+        val intent = Intent(this, ChooseAreaActivity::class.java)
+        intent.type = "text/plain"
+        intent.putExtra("bitmap_file_uri", fileUri.toString())
         startActivity(intent)
     }
 }
