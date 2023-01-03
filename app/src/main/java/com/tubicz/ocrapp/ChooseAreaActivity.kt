@@ -64,6 +64,8 @@ class ChooseAreaActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when (v!!.id) {
             R.id.bt_ok -> cropBitmapAndPassToDisplayResultsActivity()
+            R.id.bt_rotate -> imageCropperView!!.rotateImage(90)
+            R.id.bt_back -> super.onBackPressed()
         }
     }
 
