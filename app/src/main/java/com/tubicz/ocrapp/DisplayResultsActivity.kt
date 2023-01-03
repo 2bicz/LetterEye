@@ -3,6 +3,7 @@ package com.tubicz.ocrapp
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -70,6 +71,7 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when(v!!.id) {
             R.id.bt_copy_text -> copyTextViewToClipboard()
+            R.id.bt_send -> sendMessageWithText()
         }
     }
 
@@ -80,5 +82,16 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         val clip: ClipData = ClipData.newPlainText("ocr_text", textToCopy)
         clipboardManager.setPrimaryClip(clip)
         Toast.makeText(applicationContext, R.string.copied, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun sendMessageWithText() {
+        val contentToSend: String = txtResult!!.text.toString()
+        val intent: Intent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, contentToSend)
+            type = "text/plain"
+        }
+        val chooser = Intent.createChooser(intent, null)
+        startActivity(chooser)
     }
 }
