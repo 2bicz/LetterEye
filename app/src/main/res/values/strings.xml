@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OCRApp</string>
+    <string name="app_name">LetterEye</string>
 
     <string name="toast_photo_taken">Photo taken!</string>
     <string name="toast_photo_not_taken">Failed to take a photo!</string>
