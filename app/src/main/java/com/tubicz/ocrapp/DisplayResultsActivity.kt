@@ -72,6 +72,7 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         when(v!!.id) {
             R.id.bt_copy_text -> copyTextViewToClipboard()
             R.id.bt_send -> sendMessageWithText()
+            R.id.bt_return_home -> goToMainActivity()
         }
     }
 
@@ -93,5 +94,11 @@ class DisplayResultsActivity : AppCompatActivity(), View.OnClickListener {
         }
         val chooser = Intent.createChooser(intent, null)
         startActivity(chooser)
+    }
+
+    private fun goToMainActivity() {
+        val intent: Intent = Intent(this, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
     }
 }
